@@ -1,0 +1,58 @@
+api:
+  insecure: true
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https 
+          permanent: true
+    transport:
+      lifeCycle:
+        requestAcceptGraceTimeout: 60
+        graceTimeOut: 60
+      respondingTimeouts:
+        readTimeout: 120
+        writeTimeout: 120
+        idleTimeout: 240
+  websecure:
+    address: ":443"
+    transport:
+      lifeCycle:
+        requestAcceptGraceTimeout: 60
+        graceTimeOut: 60
+      respondingTimeouts:
+        readTimeout: 120
+        writeTimeout: 120
+        idleTimeout: 240
+
+log:
+  level: info
+accessLog:
+  format: json
+  fields:
+    names:
+      StartUTC: drop
+  bufferingSize: 100
+  filters:
+    statusCodes:
+      - "300-302"
+      - "400-411"
+      - "500-524"
+
+providers:
+  providersThrottleDuration: 10s
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: internal
+    swarmMode: false
+    watch: true
+  
+  file:
+    filename: /etc/traefik/traefik_dyn.yml
+    watch: true

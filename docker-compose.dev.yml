@@ -1,0 +1,34 @@
+version: "3.9"
+
+networks:
+  internal:
+    driver: bridge
+    name: internal
+
+services:
+  traefik:
+    image: "traefik:2.9.6"
+    environment:
+      - TZ=Asia/Jakarta
+    restart: on-failure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=internal"
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.rule=Host(`ingres.inutwp.test`)"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.auth.basicauth.usersfile=/users_credentials"
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./docker/config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro"
+      - "./docker/config/traefik/traefik_dyn.yml:/etc/traefik/traefik_dyn.yml:ro"
+      - "./docker/config/cred/users_cred:/users_credentials:ro"
+      - "./docker/log/traefik.log:/etc/traefik/traefik.log"
+      - "./docker/certs:/etc/certs"
+    networks:
+      - internal

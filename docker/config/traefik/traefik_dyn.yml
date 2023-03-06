@@ -1,0 +1,19 @@
+http:
+  routers:
+    traefik:
+      service: "api@internal"
+      tls:
+        domains:
+          - main: "inutwp.test"
+            sans:
+              - "*.inutwp.test"
+
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/certs/local-cert.pem
+        keyFile: /etc/certs/local-key.pem
+  certificates:
+    - certFile: /etc/certs/local-cert.pem
+      keyFile: /etc/certs/local-key.pem
